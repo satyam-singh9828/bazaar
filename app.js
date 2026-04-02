@@ -33,9 +33,10 @@ app.use(cors({
 const io = new Server(server, {
   cors: {
     origin: [
-      "http://localhost:",
+      "http://localhost:5173",
       "https://your-frontend.vercel.app"
     ],
+    methods: ["GET", "POST"],
     credentials: true
   }
 });
