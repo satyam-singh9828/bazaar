@@ -1,6 +1,6 @@
 import express from "express";
 import { createProduct, getSellerProducts, deleteProduct } from "../controller/sellercontroller.js";
-import { signup, Login } from "../controller/auth.js";
+import { signup, Login, googleAuth } from "../controller/auth.js";
 import { isLoggedIn, isSeller } from "../middleware/authentication.js";
 import { upload } from "../middleware/upload.js";
 
@@ -12,6 +12,7 @@ sellerRouter.post("/products", isLoggedIn, upload.fields([
 ]), createProduct);
 sellerRouter.post("/signup", signup);
 sellerRouter.post("/login", Login);
+sellerRouter.post("/google-auth", googleAuth);
 sellerRouter.get("/products", isLoggedIn, getSellerProducts);
 sellerRouter.delete("/products/:productId", isLoggedIn, isSeller, deleteProduct);
 

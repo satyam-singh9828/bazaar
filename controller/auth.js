@@ -52,10 +52,73 @@ export const Login = async(req , res , next ) => {
  // Debugging line
     res.status(200).json({token , userType : user.userType ,   user: {
     _id: user._id,
-    name: user.name,
+    firstname: user.firstname,
+    lastname: user.lastname,
     email: user.email,
   },  }) ;
     }catch(err){
         res.status(500).json({message : err.message}) ;
     }
 }
+
+export const googleAuth = async (req, res, next) => {
+  const { email, firstname, googleId, userType } = req.body;
+
+  if (!email || !firstname || !googleId || !userType) {
+    return res.status(400).json({ message: "Missing Google auth details" });
+  }
+
+  if (!["buyer", "seller"].includes(userType)) {
+    return res.status(400).json({ message: "Invalid user type" });
+  }
+
+  try {
+    let user = await User.findOne({
+      $or: [{ email }, { googleId }],
+    });
+
+    if (!user) {
+      const placeholderPassword = await bcrypt.hash(`${googleId}:${email}`, 10);
+
+      user = new User({
+        googleId,
+        firstname,
+        lastname: "Google",
+        email,
+        password: placeholderPassword,
+        confirmPassword: placeholderPassword,
+        userType,
+      });
+
+      await user.save();
+    } else {
+      user.googleId = googleId;
+      if (!user.userType) {
+        user.userType = userType;
+      }
+      if (!user.firstname) {
+        user.firstname = firstname;
+      }
+      await user.save();
+    }
+
+    const token = jwt.sign(
+      { userId: user._id, userType: user.userType },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "12h" }
+    );
+
+    res.status(200).json({
+      token,
+      userType: user.userType,
+      user: {
+        _id: user._id,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        email: user.email,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

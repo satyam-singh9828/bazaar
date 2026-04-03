@@ -10,11 +10,28 @@ import customerRouter from './router/customerRouter.js' ;
 import chatrouter from './router/chatrouter.js' ; 
 import path from 'path';
 import http from "http";
+import session from "express-session";
+import passport from "passport";
 import { Server } from "socket.io";
+import jwt from "jsonwebtoken";
+import User from "./model/User.js";
+
 
 import { isLoggedIn, isSeller , isBuyer} from './middleware/authentication.js';
+
+import setupPassport from "./config/passport.js";
 const app = express() ;
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+
 const server = http.createServer(app);
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+setupPassport();
 const allowedOrigins = [
   "http://localhost:5173",
   "https://apnabazzarr.netlify.app"
@@ -70,6 +87,63 @@ app.use('/api/customer'   , customerRouter);
 app.use('/api/chat' , chatrouter ) ;
 app.use('/uploads', express.static(path.join(path.resolve(), 'uploads'))) ;
 
+// 🔹 Login route
+app.get("/auth/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"]
+  })
+);
+
+// 🔹 Callback route
+app.get("/auth/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: `${FRONTEND_URL}/login`
+  }),
+  async (req, res) => {
+    try {
+      const { googleId, firstname, email } = req.user;
+      const existingUser = await User.findOne({
+        $or: [{ email }, { googleId }],
+      });
+
+      if (existingUser) {
+        if (googleId && existingUser.googleId !== googleId) {
+          existingUser.googleId = googleId;
+          await existingUser.save();
+        }
+
+        const token = jwt.sign(
+          { userId: existingUser._id, userType: existingUser.userType },
+          process.env.JWT_SECRET_KEY,
+          { expiresIn: "12h" }
+        );
+
+        const query = new URLSearchParams({
+          token,
+          userType: existingUser.userType,
+          user: JSON.stringify({
+            _id: existingUser._id.toString(),
+            firstname: existingUser.firstname,
+            lastname: existingUser.lastname,
+            email: existingUser.email,
+          }),
+        });
+
+        return res.redirect(`${FRONTEND_URL}/auth/success?${query.toString()}`);
+      }
+
+      const query = new URLSearchParams({
+        email,
+        firstname,
+        googleId,
+      });
+
+      return res.redirect(`${FRONTEND_URL}/auth/success?${query.toString()}`);
+    } catch (error) {
+      return res.redirect(`${FRONTEND_URL}/login`);
+    }
+  }
+);
 const MONGO_DB_URL = `mongodb+srv://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_DB_PASSWORD}@product.gbmwwiy.mongodb.net/?appName=${process.env.MONGO_DB_DATABASE}` ;
 mongoose.connect(MONGO_DB_URL).then(() => {
     server.listen(3000 , () => {

@@ -35,25 +35,52 @@ export  const removefromcart = async(req , res , next ) => {
 }
 export const createOrder = async(req , res , next ) => {
     const userId = req.userId ;
-    const productId = req.params.id ;
+    const productIds = Array.isArray(req.body?.productIds)
+      ? req.body.productIds
+      : req.params.id
+        ? [req.params.id]
+        : [];
 
-    const product = await Product.findById(productId) ;
+    if (!productIds.length) {
+      return res.status(400).json({ message: "No products provided for checkout" });
+    }
 
+    for (const productId of productIds) {
+      const product = await Product.findById(productId) ;
+      if (!product) {
+        continue;
+      }
 
-    const order = new Order({products :[product._id], totalAmount: product.price , customer : userId});
-    await order.save() ;
+      let order = await Order.findOne({
+        customer: userId,
+        products: product._id,
+      });
 
-    await User.findByIdAndUpdate(
-      userId,
-      {
-        $push: { orders: order._id },
-     
-      },
-      { returnDocument: 'after'} // returns updated doc if needed
-    );
-   
+      if (order) {
+        order.products.push(product._id);
+        order.totalAmount += product.price;
+        await order.save();
+      } else {
+        order = new Order({
+          products: [product._id],
+          totalAmount: product.price,
+          customer: userId,
+        });
+        await order.save();
 
-    res.status(200).json(order) ;
+        await User.findByIdAndUpdate(userId, {
+          $push: { orders: order._id },
+        });
+      }
+    }
+
+    const updatedUser = await User.findById(userId).populate("orders");
+
+    console.log("Orders created/updated for checkout:", productIds) ;
+
+    res.status(200).json({
+      orders: updatedUser.orders,
+    }) ;
     
 
     
