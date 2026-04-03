@@ -21,7 +21,7 @@ import { isLoggedIn, isSeller , isBuyer} from './middleware/authentication.js';
 
 import setupPassport from "./config/passport.js";
 const app = express() ;
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const FRONTEND_URL = "https://apnabazzarr.netlify.app" || "http://localhost:5173";
 
 const server = http.createServer(app);
 app.use(session({
