@@ -21,21 +21,32 @@ import { isLoggedIn, isSeller , isBuyer} from './middleware/authentication.js';
 
 import setupPassport from "./config/passport.js";
 const app = express() ;
-const FRONTEND_URL = "https://apnabazzarr.netlify.app" || "http://localhost:5173";
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const isProduction = process.env.NODE_ENV === "production";
+
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
 
 const server = http.createServer(app);
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  proxy: isProduction,
+  cookie: {
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax"
+  }
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 setupPassport();
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://apnabazzarr.netlify.app"
-];
+  "https://apnabazzarr.netlify.app",
+  FRONTEND_URL,
+].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -51,7 +62,8 @@ const io = new Server(server, {
   cors: {
     origin: [
       "http://localhost:5173",
-      "https://apnabazzarr.netlify.app"
+      "https://apnabazzarr.netlify.app",
+      FRONTEND_URL
     ],
     methods: ["GET", "POST"],
     credentials: true
@@ -81,7 +93,6 @@ io.on("connection" , (socket) => {
 })
 app.use(express.json()) ;
 app.use(bodyParser.urlencoded({ extended: true })) ;
-app.use(cors()) ;
 app.use('/api/seller' , sellerRouter) ;
 app.use('/api/customer'   , customerRouter);
 app.use('/api/chat' , chatrouter ) ;
@@ -146,7 +157,8 @@ app.get("/auth/google/callback",
 );
 const MONGO_DB_URL = `mongodb+srv://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_DB_PASSWORD}@product.gbmwwiy.mongodb.net/?appName=${process.env.MONGO_DB_DATABASE}` ;
 mongoose.connect(MONGO_DB_URL).then(() => {
-    server.listen(3000 , () => {
-        console.log(`Server + Socket running on http://localhost:3000`);
+    const port = process.env.PORT || 3000;
+    server.listen(port , () => {
+        console.log(`Server + Socket running on port ${port}`);
     });
 });
