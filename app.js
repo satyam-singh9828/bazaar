@@ -17,7 +17,7 @@ const app = express() ;
 const server = http.createServer(app);
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://your-frontend.vercel.app"
+  "https://apnabazzarr.netlify.app"
 ];
 
 app.use(cors({
