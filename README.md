@@ -2,7 +2,8 @@
 
 > A modern, full-stack e-commerce platform built with React and Node.js — your one-stop online shopping destination.
 
-![Apna Bazaar Banner](<img width="831" height="921" alt="Screenshot 2026-04-25 214555" src="https://github.com/user-attachments/assets/361e215c-f066-4d0e-aee9-370f9ad279ec" />
+![Apna Bazaar Banner](<img width="1605" height="424" alt="Screenshot 2026-04-25 214628" src="https://github.com/user-attachments/assets/53b76776-aaa3-4df8-9b4c-dc6d987d574b" />
+
 )
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20Site-brightgreen?style=for-the-badge)](https://your-live-demo-link.com)
