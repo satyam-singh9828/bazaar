@@ -45,22 +45,6 @@ Whether you're a shopper looking for great deals or an admin managing an online 
 
 ---
 
-## 📸 Screenshots
-
-> Add your actual screenshots in a `/screenshots` folder and update the paths below.
-
-| Home Page | Product Page |
-|-----------|--------------|
-| ![Home](<img width="831" height="921" alt="Screenshot 2026-04-25 214555" src="https://github.com/user-attachments/assets/ddc02500-d992-42af-baff-002f9b33375e" />
-) 
-
-| Shopping Cart | Admin Dashboard |
-|---------------|-----------------|
-| ![Cart](<img width="1484" height="655" alt="Screenshot 2026-04-25 214655" src="https://github.com/user-attachments/assets/6e2443f9-ff3c-44a3-bdfc-8a1725dfe0a6" />
-) | (<img width="1605" height="424" alt="Screenshot 2026-04-25 214628" src="https://github.com/user-attachments/assets/4a484ca3-5c1f-4695-aad6-5adf49e4dbfc" />
-) |
-
----
 
 ## ✨ Features
 
