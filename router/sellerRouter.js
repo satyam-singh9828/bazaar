@@ -15,6 +15,7 @@ sellerRouter.post("/login", Login);
 sellerRouter.post("/google-auth", googleAuth);
 sellerRouter.get("/products", isLoggedIn, getSellerProducts);
 sellerRouter.delete("/products/:productId", isLoggedIn, isSeller, deleteProduct);
+sellerRouter.post("/products/:productId/delete", isLoggedIn, isSeller, deleteProduct);
 
 export default sellerRouter;
 
