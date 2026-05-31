@@ -223,10 +223,10 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 ## 📬 Contact
 
-**Your Name**
-- GitHub: [@your-username](https://github.com/your-username)
+**Satyam singh **
+- GitHub: [@satyamsingh](https://github.com/satyam-singh9828)
 - Email: your.email@example.com
-- LinkedIn: [your-linkedin](https://linkedin.com/in/your-profile)
+- LinkedIn: [satyam singh ](https://www.linkedin.com/in/satyam-singh9838)
 
 ---
 
